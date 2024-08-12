@@ -68,7 +68,7 @@ The Nuke Python Bot is a Discord bot designed for server management and testing.
 1. **Run the Bot**
 
    ```bash
-   python bot.py
+   python main.py
    ```
 
 2. **Commands**
@@ -176,7 +176,7 @@ Nuke Python Bot là một bot Discord được thiết kế cho việc quản l�
 1. **Chạy Bot**
 
    ```bash
-   python bot.py
+   python main.py
    ```
 
 2. **Các Lệnh**
