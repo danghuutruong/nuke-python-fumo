@@ -86,7 +86,8 @@ The Nuke Python Bot is a Discord bot designed for server management and testing.
    - `!prune_members`: Kick all users who have been offline for 1 day or more.
    - `!delete_channel`: Delete all channels.
    - `!delete_role`: Delete all roles (except everyone).
-   - `!ls`: BOT leaves all the server
+   - `!ls`: BOT leaves all the server.
+   - `!add_premium_user`: Add senior expiry date.
 
 ## Testing
 
@@ -194,7 +195,8 @@ Nuke Python Bot là một bot Discord được thiết kế cho việc quản l�
    - `!prune_members`: Đá tất cả người dùng đã offline từ 1 ngày trở lên.
    - `!delete_channel`: Xóa tất cả các kênh.
    - `!delete_role`: Xóa tất cả các vai trò (ngoại trừ vai trò everyone).
-   - `!ls`: bot rời tất cả máy chủ
+   - `!ls`: bot rời tất cả máy chủ.
+   - `!add_premium_user`: Thêm ngày hết hạn cao cấp.
 
 ## Thử Nghiệm
 
