@@ -30,27 +30,7 @@ The Nuke Python Bot is a Discord bot designed for server management and testing.
    git clone https://github.com/danghuutruong/nuke-python-fumo-v2.git
    ```
 
-2. **Create a Virtual Environment**
-
-   ```bash
-   python -m venv venv
-   ```
-
-3. **Activate the Virtual Environment**
-
-   - On Windows:
-
-     ```bash
-     venv\Scripts\activate
-     ```
-
-   - On macOS/Linux:
-
-     ```bash
-     source venv/bin/activate
-     ```
-
-4. **Configuration**
+2. **Configuration**
 
    - Create a `config.json` file in the root directory with the following content:
 
@@ -139,27 +119,7 @@ Nuke Python Bot là một bot Discord được thiết kế cho việc quản l�
    git clone https://github.com/danghuutruong/nuke-python-fumo-v2.git
    ```
 
-2. **Tạo Môi Trường Ảo**
-
-   ```bash
-   python -m venv venv
-   ```
-
-3. **Kích Hoạt Môi Trường Ảo**
-
-   - Trên Windows:
-
-     ```bash
-     venv\Scripts\activate
-     ```
-
-   - Trên macOS/Linux:
-
-     ```bash
-     source venv/bin/activate
-     ```
-
-4. **Cấu Hình**
+2. **Cấu Hình**
 
    - Tạo một tệp `config.json` trong thư mục gốc với nội dung sau:
 
